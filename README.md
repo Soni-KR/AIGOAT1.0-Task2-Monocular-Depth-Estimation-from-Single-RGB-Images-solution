@@ -1,0 +1,85 @@
+# AIGOAT Task 2 - Monocular Depth Estimation
+
+This repository contains our AIGOAT Task 2 solution and a learning-focused web application around the exported ONNX model.
+
+The React frontend accepts a JPG or PNG image, sends it to FastAPI, and displays the predicted depth map. The FastAPI backend performs the same preprocessing used for the competition model and runs inference with ONNX Runtime.
+
+## Project Structure
+
+```text
+task2_app/
+|-- backend/
+|   |-- main.py          FastAPI routes
+|   |-- depth_service.py ONNX preprocessing and inference
+|   `-- requirements.txt
+|-- frontend/            Vite + React application
+|-- depth_model.onnx     Exported competition model
+|-- the one.ipynb        Original solution notebook
+|-- task2.pdf            Competition task statement
+|-- *.jpg                Sample input images
+`-- README.md
+```
+
+## Requirements
+
+- Python 3.10 or newer
+- Node.js `^20.19.0` or `>=22.12.0`
+- npm
+
+## Backend Setup
+
+From the repository root in PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r backend/requirements.txt
+cd backend
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Open the interactive API documentation at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+
+## Frontend Setup
+
+In a second terminal, from the repository root:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173).
+
+The frontend uses `http://127.0.0.1:8000` by default. To use another backend address, copy `frontend/.env.example` to `frontend/.env` and change `VITE_API_BASE_URL`.
+
+## API
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Check whether the API is online |
+| `GET` | `/model-info` | Inspect model input and output metadata |
+| `POST` | `/predict` | Upload a JPG or PNG and receive a depth map |
+
+`POST /predict` returns the output dimensions, minimum and maximum raw depth values, and the normalized depth image as a base64-encoded PNG.
+
+## Verification
+
+Frontend checks:
+
+```powershell
+cd frontend
+npm run lint
+npm run build
+```
+
+Backend smoke test after starting the API:
+
+```powershell
+Invoke-WebRequest http://127.0.0.1:8000/health -UseBasicParsing
+```
+
+## Competition Files
+
+The original notebook and task PDF are included for study and reproducibility. The ONNX model uses a fixed input batch shape of `(8, 3, 448, 448)`; the backend repeats one uploaded image across the batch and returns the first predicted depth map.

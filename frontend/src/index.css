@@ -1,0 +1,163 @@
+:root {
+  font-family: Arial, sans-serif;
+  color: #172033;
+  background: #f7f9fc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.status {
+  margin: 0;
+  font-weight: 600;
+}
+
+.status--checking {
+  color: #526078;
+}
+
+.status--ok {
+  color: #167447;
+}
+
+.status--offline {
+  color: #b42318;
+}
+
+.image-picker {
+  display: flex;
+  width: min(100%, 560px);
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.image-picker label {
+  font-weight: 600;
+}
+
+.image-picker input {
+  font: inherit;
+}
+
+.image-picker button {
+  align-self: flex-start;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  background: #2457c5;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.image-picker button:disabled {
+  color: #6d778a;
+  background: #e3e7ef;
+  cursor: not-allowed;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.preview img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border: 1px solid #d6dce8;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.preview p {
+  margin: 0;
+  color: #526078;
+  overflow-wrap: anywhere;
+}
+
+.error {
+  width: min(100%, 560px);
+  margin: 0;
+  color: #b42318;
+}
+
+.result {
+  display: flex;
+  width: min(100%, 560px);
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.result h2 {
+  margin: 0;
+}
+
+.result img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border: 1px solid #d6dce8;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.result dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.result dl div {
+  padding: 10px;
+  border: 1px solid #d6dce8;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.result dt {
+  color: #526078;
+  font-size: 0.875rem;
+}
+
+.result dd {
+  margin: 4px 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .result dl {
+    grid-template-columns: 1fr;
+  }
+}
