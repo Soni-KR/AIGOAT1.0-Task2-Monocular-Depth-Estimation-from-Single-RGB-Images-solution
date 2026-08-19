@@ -34,8 +34,7 @@ From the repository root in PowerShell:
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r backend/requirements.txt
-cd backend
-python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Open the interactive API documentation at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
@@ -58,13 +57,27 @@ The frontend uses `http://127.0.0.1:8000` by default. To use another backend add
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `GET` | `/health` | Check whether the API is online |
+| `GET` | `/health` | Check whether the API process is alive |
+| `GET` | `/ready` | Verify that ONNX Runtime can load the model |
 | `GET` | `/model-info` | Inspect model input and output metadata |
 | `POST` | `/predict` | Upload a JPG or PNG and receive a depth map |
 
 `POST /predict` returns the output dimensions, minimum and maximum raw depth values, and the normalized depth image as a base64-encoded PNG.
 
 ## Verification
+
+Install development dependencies and run the complete backend test suite:
+
+```powershell
+python -m pip install -r backend/requirements-dev.txt
+python -m pytest
+```
+
+Run only the fast tests while developing:
+
+```powershell
+python -m pytest -m "not integration"
+```
 
 Frontend checks:
 
@@ -78,7 +91,24 @@ Backend smoke test after starting the API:
 
 ```powershell
 Invoke-WebRequest http://127.0.0.1:8000/health -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:8000/ready -UseBasicParsing
 ```
+
+## Backend Configuration
+
+The backend reads deployment-specific settings from environment variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `AIGOAT_CORS_ORIGINS` | Local Vite origins | Comma-separated browser origins permitted by CORS |
+| `AIGOAT_MAX_UPLOAD_MB` | `10` | Maximum uploaded image size in whole megabytes |
+
+See [`backend/.env.example`](backend/.env.example) for example values. Environment
+variables are read by the process; the application does not automatically load the
+example file.
+
+The implementation and reasoning for this production baseline are explained in
+[`docs/phase-1-reliable-backend.md`](docs/phase-1-reliable-backend.md).
 
 ## Competition Files
 

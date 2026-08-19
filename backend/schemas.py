@@ -1,16 +1,23 @@
+from typing import Literal
+
 from pydantic import BaseModel
 
 
 class HealthResponse(BaseModel):
-    status: str
+    status: Literal["ok"]
+
+
+class ReadinessResponse(BaseModel):
+    status: Literal["ready"]
+    providers: list[str]
 
 
 class ModelInfoResponse(BaseModel):
-    model_path: str
+    model_name: str
     input_name: str
     output_name: str
-    input_shape: list[int]
-    output_shape: list[int]
+    input_shape: list[int | str | None]
+    output_shape: list[int | str | None]
     image_size: int
 
 

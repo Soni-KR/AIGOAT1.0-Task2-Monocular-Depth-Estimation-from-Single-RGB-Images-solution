@@ -3,7 +3,7 @@ from io import BytesIO
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 try:
     import onnxruntime as ort
@@ -13,7 +13,12 @@ except ImportError:  # Keeps imports readable before dependencies are installed.
 
 IMAGE_SIZE = 448
 BATCH_SIZE = 8
+MAX_SOURCE_PIXELS = 40_000_000
 MODEL_PATH = Path(__file__).resolve().parents[1] / "depth_model.onnx"
+
+
+class InvalidImageError(ValueError):
+    """Raised when uploaded bytes cannot be decoded as a supported image."""
 
 
 class DepthModelService:
@@ -41,13 +46,23 @@ class DepthModelService:
         if self._session is None:
             providers = ["CPUExecutionProvider"]
             self._session = ort.InferenceSession(str(self.model_path), providers=providers)
-            self.input_name = self._session.get_inputs()[0].name
-            self.output_name = self._session.get_outputs()[0].name
+            model_input = self._session.get_inputs()[0]
+            model_output = self._session.get_outputs()[0]
+            self.input_name = model_input.name
+            self.output_name = model_output.name
+            self.input_shape = list(model_input.shape)
+            self.output_shape = list(model_output.shape)
         return self._session
 
+    def ensure_ready(self) -> list[str]:
+        """Load the model session and return its active execution providers."""
+        return self.session.get_providers()
+
     def model_info(self) -> dict:
+        # Accessing the session ensures the returned metadata came from the model.
+        _ = self.session
         return {
-            "model_path": str(self.model_path),
+            "model_name": self.model_path.name,
             "input_name": self.input_name,
             "output_name": self.output_name,
             "input_shape": self.input_shape,
@@ -69,8 +84,27 @@ class DepthModelService:
         }
 
     def _preprocess_image(self, image_bytes: bytes) -> np.ndarray:
-        image = Image.open(BytesIO(image_bytes)).convert("RGB")
-        image = image.resize((IMAGE_SIZE, IMAGE_SIZE), Image.BILINEAR)
+        try:
+            with Image.open(BytesIO(image_bytes)) as uploaded_image:
+                if uploaded_image.width * uploaded_image.height > MAX_SOURCE_PIXELS:
+                    raise InvalidImageError(
+                        "The uploaded image dimensions are too large."
+                    )
+                uploaded_image.load()
+                image = uploaded_image.convert("RGB")
+        except InvalidImageError:
+            raise
+        except (
+            Image.DecompressionBombError,
+            UnidentifiedImageError,
+            OSError,
+            ValueError,
+        ) as exc:
+            raise InvalidImageError(
+                "The uploaded file is not a valid PNG or JPEG image."
+            ) from exc
+
+        image = image.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
 
         array = np.array(image, dtype=np.float32)
         if array.max() > 1.0:
@@ -89,7 +123,7 @@ class DepthModelService:
 
     def _depth_to_base64_png(self, depth_norm: np.ndarray) -> str:
         depth_uint8 = (np.clip(depth_norm, 0.0, 1.0) * 255).astype(np.uint8)
-        image = Image.fromarray(depth_uint8, mode="L")
+        image = Image.fromarray(depth_uint8)
         buffer = BytesIO()
         image.save(buffer, format="PNG")
         return base64.b64encode(buffer.getvalue()).decode("ascii")
