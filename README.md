@@ -39,6 +39,29 @@ python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 
 Open the interactive API documentation at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
+## Backend Docker
+
+Build the production backend image from the repository root:
+
+```powershell
+docker build --file backend/Dockerfile --tag aigoat-api:0.2 .
+```
+
+Run the API with local frontend access and a 10 MB upload limit:
+
+```powershell
+docker run --rm --name aigoat-api `
+    --publish 8000:8000 `
+    --env AIGOAT_CORS_ORIGINS=http://localhost:5173 `
+    --env AIGOAT_MAX_UPLOAD_MB=10 `
+    aigoat-api:0.2
+```
+
+The container runs as a non-root Linux user and reports readiness through its
+Docker health check. See
+[`docs/phase-2-backend-container.md`](docs/phase-2-backend-container.md) for the
+Dockerfile explanation, verification commands, and troubleshooting notes.
+
 ## Frontend Setup
 
 In a second terminal, from the repository root:

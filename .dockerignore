@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# Python local environment / caches
+.venv
+venv
+__pycache__
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.coverage
+htmlcov
+
+# IDE / OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Frontend generated dependencies/build
+frontend/node_modules
+frontend/dist
+
+# Development / research files not needed by backend
+*.ipynb
+*.pdf
+docs
+README.md
+backend/README.md
+backend/.env.example
+backend/requirements-dev.txt
+backend/tests
+pytest.ini
+
+# Sample images
+*.jpg
+*.jpeg
+*.png
+
+# Misc logs
+*.log

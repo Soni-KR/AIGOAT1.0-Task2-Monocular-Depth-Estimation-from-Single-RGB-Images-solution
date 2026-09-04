@@ -27,3 +27,5 @@ python -m pytest
 ```
 
 See the [project README](../README.md) for the complete setup and API behavior.
+The backend container workflow is explained in
+[`docs/phase-2-backend-container.md`](../docs/phase-2-backend-container.md).
