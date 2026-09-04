@@ -62,6 +62,29 @@ Docker health check. See
 [`docs/phase-2-backend-container.md`](docs/phase-2-backend-container.md) for the
 Dockerfile explanation, verification commands, and troubleshooting notes.
 
+## Full Stack with Docker Compose
+
+Build and start the production-shaped frontend and backend:
+
+```powershell
+docker compose up --build --detach
+docker compose ps
+```
+
+Open [http://127.0.0.1:8080](http://127.0.0.1:8080). Nginx serves the compiled
+React application and forwards `/api/*` to the private FastAPI service.
+
+Inspect logs and stop the stack:
+
+```powershell
+docker compose logs --follow
+docker compose down
+```
+
+See [`docs/phase-3-full-stack-compose.md`](docs/phase-3-full-stack-compose.md)
+for the multi-stage frontend image, Nginx proxy, Compose network, health checks,
+and complete verification workflow.
+
 ## Frontend Setup
 
 In a second terminal, from the repository root:

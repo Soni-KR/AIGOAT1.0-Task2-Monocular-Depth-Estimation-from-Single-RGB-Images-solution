@@ -1,0 +1,28 @@
+name: aigoat
+
+services:
+  backend:
+    image: aigoat-api:compose
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      AIGOAT_CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+      AIGOAT_MAX_UPLOAD_MB: "10"
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  frontend:
+    image: aigoat-frontend:compose
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped

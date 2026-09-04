@@ -18,6 +18,10 @@ htmlcov
 .DS_Store
 Thumbs.db
 
+# Local environment files may contain secrets or machine-specific URLs
+**/.env
+**/.env.*
+
 # Frontend generated dependencies/build
 frontend/node_modules
 frontend/dist
@@ -28,7 +32,6 @@ frontend/dist
 docs
 README.md
 backend/README.md
-backend/.env.example
 backend/requirements-dev.txt
 backend/tests
 pytest.ini
